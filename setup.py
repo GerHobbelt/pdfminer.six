@@ -21,6 +21,9 @@ PDF parser that can be used for other purposes instead of text analysis.''',
     author='Yusuke Shinyama',
     author_email='yusuke at cs dot nyu dot edu',
     url='https://github.com/3stack-software/pdfminer/',
+    extras_require={
+        'crypto': ['pycrypto'],
+    },
     packages=[
     'pdfminer',
     ],
