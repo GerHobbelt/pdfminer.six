@@ -222,23 +222,23 @@ class PDFStream(PDFObject):
 
     def get_filters(self):
         filters = self.get_any(('F', 'Filter'))
-        params = self.get_any(('DP', 'DecodeParms', 'FDecodeParms'), {})
         if not filters:
             return []
         if not isinstance(filters, list):
-            filters = [filters]
+            params = self.get_any(('DP', 'DecodeParms', 'FDecodeParms'), {})
+            return [(filters, params)]
+
+        # `Filter` is an list, then, params must also be a list.
+        params = self.get_any(('DP', 'DecodeParms', 'FDecodeParms'))
         if not isinstance(params, list):
-            # Make sure the parameters list is the same as filters.
-            params = [params] * len(filters)
-        if settings.STRICT and len(params) != len(filters):
-            raise PDFException("Parameters len filter mismatch")
-        # resolve filter if possible
-        _filters = []
-        for fltr in filters:
-            if hasattr(fltr, 'resolve'):
-                fltr = fltr.resolve()[0]
-            _filters.append(fltr)
-        return list(zip(_filters, params)) #solves https://github.com/pdfminer/pdfminer.six/issues/15
+            params = []
+        # zip filters & params together, filling in where params is shorter.
+        # solves https://github.com/pdfminer/pdfminer.six/issues/15
+        nparams = len(params)
+        return [
+            (f, (params[idx] if idx < nparams else {}))
+            for idx, f in enumerate(filters)
+        ]
 
     def decode(self):
         assert self.data is None and self.rawdata is not None, str((self.data, self.rawdata))
