@@ -21,7 +21,7 @@ if sys.version_info >= (3, 0):
     requires.append('chardet')
 
 setup(
-    name='pdfminer3',
+    name='3stack-pdfminer3',
     version=about['__version__'],
     packages=['pdfminer3'],
     package_data={'pdfminer3': ['cmap/*.pickle.gz']},
@@ -32,7 +32,7 @@ setup(
     license='MIT/X',
     author='Yusuke Shinyama & contributors',
     author_email='george.w.king@gmail.com',
-    url='https://github.com/gwk/pdfminer3',
+    url='https://github.com/3stack-software/pdfminer/',
     scripts=['tools/pdf2txt.py', 'tools/dumppdf.py', 'tools/latin2ascii.py'],
     keywords=['pdf', 'pdf parser', 'pdf converter', 'layout analysis', 'text mining'],
     classifiers=[

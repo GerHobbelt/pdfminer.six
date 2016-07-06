@@ -20,10 +20,12 @@ clean:
 	-cd tools && $(MAKE) clean
 	-cd samples && $(MAKE) clean
 
-distclean: clean cmap_clean
+distclean: clean
 
 sdist: distclean MANIFEST.in
 	python3 setup.py sdist
+bdist: distclean MANIFEST.in
+	python3 setup.py bdist_wheel --universal
 register: distclean MANIFEST.in
 	python3 setup.py sdist upload register
 

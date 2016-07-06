@@ -1,10 +1,23 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
+- '3.6'
 install:
-  - pip install -e .
-  - pip install pytest
+- pip install -e .
+- pip install pytest
 script:
-  - make test
-  - make sdist
+- make test
+- make sdist bdist
+deploy:
+- provider: releases
+  api_key:
+    secure: 0porzda0x0rDW1RuPkvPo74zMRvOJYZ4q9ScEnjw1rSRjC6SHGaK4B1r6II5IiVlFDiTTaEXG4odtPXXsdelASXOETSOxCL+acdRuoQZ14n8ZB/m2LxdBXWYGivknHcK4IdaglYQndgm7kwE+zepjnm/7DZi5+65iOsuIbn5nl7Uj7Z7hbCjxu6JGex1wTHJfMf+A5RGr4UIgnDaRoMuUfcq9hOB1zA5An3Q+PNowONCC5FZPmV0NphICoKJCF2nbewd+GNIfMh8Ni6fosDIIXJ7WRdwP/OGqVbQLEo7OSrzec5CKckEHkVBia9Vvcq2IeAdKderNpDnxRcKjnEzijU7knpcbsorGLoDwZDaeGoyERTRjQD9I7eLKNMzxrVgWbSfxdy+aSKPt66RnTmuQNFIdl9oXiTMSe+/pMAmtY0Cqtns0KS0xUto25b4lRQPPX//8PQ64xI+AsJcNHzRJKAKThiK2zkkF18uKhWQNDvxb9/0/PFvMUBV55ScTFftErO30ATeGbnNb6+YErkVR04tRsFdW+D070EXrhL5gNh7bFHzchvG4gEZKB/zEsqPI4eHdawI0y5GG1nleodWEBGtkv8zdrhFL9H7eL1ol93BAQDwBb8HwXHAWRlcrAwI7m9m+ntpIF1I3qXSUA+m5o0CA03sAZbyBLawq4COiT4=
+  file: dist/*
+  file_glob: true
+  skip_cleanup: true
+  on:
+    repo: 3stack-software/pdfminer
+- provider: script
+  script: bash dist_gemfury.sh
+  skip_cleanup: true
+  on:
+    tags: true
