@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-from distutils.core import setup
-from pdfminer import __version__
+import setuptools
+import pdfminer
 
-setup(
-    name='pdfminer',
+__version__ = pdfminer.__version__
+
+
+setuptools.setup(
+    name='3stack-pdfminer',
     version=__version__,
     description='PDF parser and analyzer',
     long_description='''PDFMiner is a tool for extracting information from PDF documents.
@@ -17,7 +20,7 @@ PDF parser that can be used for other purposes instead of text analysis.''',
     license='MIT/X',
     author='Yusuke Shinyama',
     author_email='yusuke at cs dot nyu dot edu',
-    url='http://euske.github.io/pdfminer/index.html',
+    url='https://github.com/3stack-software/pdfminer/',
     packages=[
     'pdfminer',
     ],
