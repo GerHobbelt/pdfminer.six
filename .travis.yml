@@ -5,8 +5,7 @@ install:
 - pip install pycrypto
 script:
 - make test
-- python setup.py bdist_wheel --universal
-- ls dist/*.whl
+- make bdist
 deploy:
   provider: releases
   api_key:

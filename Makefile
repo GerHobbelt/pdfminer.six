@@ -25,6 +25,8 @@ distclean: clean cmap_clean
 
 sdist: distclean MANIFEST.in
 	$(PYTHON) setup.py sdist
+bdist: distclean MANIFEST.in
+	$(PYTHON) setup.py bdist_wheel --universal
 register: distclean MANIFEST.in
 	$(PYTHON) setup.py sdist upload register
 
