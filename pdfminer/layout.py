@@ -514,7 +514,7 @@ class LTLayoutContainer(LTContainer):
                            obj0.voverlap(obj1)) and
                           (obj0.hdistance(obj1) <
                            max(obj0.width, obj1.width) * laparams.char_margin))
-                
+
                 # valign: obj0 and obj1 is vertically aligned.
                 #
                 #   +------+
@@ -536,7 +536,7 @@ class LTLayoutContainer(LTContainer):
                            obj0.hoverlap(obj1)) and
                           (obj0.vdistance(obj1) <
                            max(obj0.height, obj1.height) * laparams.char_margin))
-                
+
                 if ((halign and isinstance(line, LTTextLineHorizontal)) or
                     (valign and isinstance(line, LTTextLineVertical))):
                     line.add(obj1)
@@ -630,7 +630,7 @@ class LTLayoutContainer(LTContainer):
         def key_obj(t):
             (c,d,_,_) = t
             return (c,d)
-        
+
         # XXX this still takes O(n^2)  :(
         dists = []
         for i in xrange(len(boxes)):
@@ -676,13 +676,20 @@ class LTLayoutContainer(LTContainer):
         for obj in empties:
             obj.analyze(laparams)
         textboxes = list(self.group_textlines(laparams, textlines))
-        if textboxes:
+        if abs(laparams.boxes_flow) <= 1 and textboxes:
             self.groups = self.group_textboxes(laparams, textboxes)
             assigner = IndexAssigner()
             for group in self.groups:
                 group.analyze(laparams)
                 assigner.run(group)
             textboxes.sort(key=lambda box: box.index)
+        else:
+            def getkey(box):
+                if isinstance(box, LTTextBoxVertical):
+                    return (0, -box.x1, box.y0)
+                else:
+                    return (1, box.y0, box.x0)
+            textboxes.sort(key=getkey)
         self._objs = textboxes + otherobjs + empties
         return
 
