@@ -174,6 +174,27 @@ def stream_value(x):
     return x
 
 
+def _safe_flate_decode(compressed):
+    try:
+        return zlib.decompress(compressed)
+    except zlib.error as e:
+        if b'incorrect data check' not in e.message:
+            raise
+    # Sometimes the stream can have junk appended,
+    #  it could be worth byte-by-byte decoding.
+    # This seems to mimic other pdf clients.
+    decompressor = zlib.decompressobj()
+    out = b''
+    try:
+        for b in compressed:
+            out += decompressor.decompress(b)
+    except zlib.error:
+        pass
+    out += decompressor.flush()
+    return out
+
+
+
 ##  PDFStream type
 ##
 class PDFStream(PDFObject):
@@ -250,7 +271,7 @@ class PDFStream(PDFObject):
             if f in LITERALS_FLATE_DECODE:
                 # will get errors if the document is encrypted.
                 try:
-                    data = zlib.decompress(data)
+                    data = _safe_flate_decode(data)
                 except zlib.error as e:
                     if STRICT:
                         raise PDFException('Invalid zlib bytes: %r, %r' % (e, data))
