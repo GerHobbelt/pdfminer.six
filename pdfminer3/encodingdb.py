@@ -6,7 +6,7 @@ from .latin_enc import ENCODING
 
 
 STRIP_NAME = re.compile(r'[0-9]+')
-
+UNICODE_HEX = re.compile(r'(?:uni|u)?([0-9a-f]+)', re.IGNORECASE)
 
 ##  name2unicode
 ##
@@ -14,6 +14,9 @@ def name2unicode(name):
     """Converts Adobe glyph names to Unicode numbers."""
     if name in glyphname2unicode:
         return glyphname2unicode[name]
+    m = UNICODE_HEX.match(name)
+    if m:
+        return chr(int(m.group(1), 16))
     m = STRIP_NAME.search(name)
     if not m:
         raise KeyError(name)
