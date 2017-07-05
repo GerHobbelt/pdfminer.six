@@ -2,19 +2,7 @@
 import re
 import struct
 import logging
-
-
-try:
-    import hashlib as md5
-except ImportError:
-    import md5
-try:
-    from Crypto.Cipher import ARC4
-    from Crypto.Cipher import AES
-    from Crypto.Hash import SHA256
-except ImportError:
-    AES = SHA256 = None
-    from . import arcfour as ARC4
+from .crypto import encrypt_arc4, decrypt_arc4, decrypt_aes, digest_md5, digest_sha256
 from .psparser import PSEOF
 from .psparser import literal_name
 from .psparser import LIT
@@ -296,6 +284,7 @@ class PDFStandardSecurityHandler(object):
         self.docid = docid
         self.param = param
         self.password = password
+        self.encrypt_metadata = False
         self.init()
         return
 
@@ -333,38 +322,33 @@ class PDFStandardSecurityHandler(object):
     def compute_u(self, key):
         if self.r == 2:
             # Algorithm 3.4
-            return ARC4.new(key).encrypt(self.PASSWORD_PADDING)  # 2
+            return encrypt_arc4(key, self.PASSWORD_PADDING)  # 2
         else:
             # Algorithm 3.5
-            hash = md5.md5(self.PASSWORD_PADDING)  # 2
-            hash.update(self.docid[0])  # 3
-            result = ARC4.new(key).encrypt(hash.digest())  # 4
+            result = encrypt_arc4(key, digest_md5(self.PASSWORD_PADDING, self.docid[0]))  # 2, 3, 4
             for i in range(1, 20):  # 5
-                k = b''.join(bytes((c^i,)) for c in key)
-                result = ARC4.new(k).encrypt(result)
+                k = bytes(c ^ i for c in key)
+                result = encrypt_arc4(k, result)
             result += result  # 6
             return result
 
     def compute_encryption_key(self, password):
         # Algorithm 3.2
         password = (password + self.PASSWORD_PADDING)[:32]  # 1
-        hash = md5.md5(password)  # 2
-        hash.update(self.o)  # 3
-        hash.update(struct.pack('<l', self.p))  # 4
-        hash.update(self.docid[0])  # 5
-        if self.r >= 4:
-            if not self.encrypt_metadata:
-                hash.update(b'\xff\xff\xff\xff')
-        result = hash.digest()
+        pieces = [password, self.o, struct.pack('<l', self.p), self.docid[0]]
+        if self.r >= 4 and not self.encrypt_metadata:
+            pieces.append(b'\xff\xff\xff\xff')
+        result = digest_md5(*pieces)
         n = 5
         if self.r >= 3:
             n = self.length // 8
             for _ in range(50):
-                result = md5.md5(result[:n]).digest()
+                result = digest_md5(result[:n])
         return result[:n]
 
     def authenticate(self, password):
-        password = password.encode("latin1")
+        if not isinstance(password, bytes):
+            password = password.encode("latin1")
         key = self.authenticate_user_password(password)
         if key is None:
             key = self.authenticate_owner_password(password)
@@ -387,21 +371,21 @@ class PDFStandardSecurityHandler(object):
     def authenticate_owner_password(self, password):
         # Algorithm 3.7
         password = (password + self.PASSWORD_PADDING)[:32]
-        hash = md5.md5(password)
+        key = digest_md5(password)
         if self.r >= 3:
             for _ in range(50):
-                hash = md5.md5(hash.digest())
+                key = digest_md5(key)
         n = 5
         if self.r >= 3:
             n = self.length // 8
-        key = hash.digest()[:n]
+        key = key[:n]
         if self.r == 2:
-            user_password = ARC4.new(key).decrypt(self.o)
+            user_password = decrypt_arc4(key, self.o)
         else:
             user_password = self.o
             for i in range(19, -1, -1):
-                k = b''.join(bytes((c^i,)) for c in key)
-                user_password = ARC4.new(k).decrypt(user_password)
+                k = bytes(c ^ i for c in key)
+                user_password = decrypt_arc4(k, user_password)
         return self.authenticate_user_password(user_password)
 
     def decrypt(self, objid, genno, data, attrs=None):
@@ -409,9 +393,9 @@ class PDFStandardSecurityHandler(object):
 
     def decrypt_rc4(self, objid, genno, data):
         key = self.key + struct.pack('<L', objid)[:3] + struct.pack('<L', genno)[:2]
-        hash = md5.md5(key)
-        key = hash.digest()[:min(len(key), 16)]
-        return ARC4.new(key).decrypt(data)
+        orig_len = len(key)
+        key = digest_md5(key)[:min(orig_len, 16)]
+        return decrypt_arc4(key, data)
 
 
 class PDFStandardSecurityHandlerV4(PDFStandardSecurityHandler):
@@ -460,9 +444,9 @@ class PDFStandardSecurityHandlerV4(PDFStandardSecurityHandler):
 
     def decrypt_aes128(self, objid, genno, data):
         key = self.key + struct.pack('<L', objid)[:3] + struct.pack('<L', genno)[:2] + b'sAlT'
-        hash = md5.md5(key)
-        key = hash.digest()[:min(len(key), 16)]
-        return AES.new(key, mode=AES.MODE_CBC, IV=data[:16]).decrypt(data[16:])
+        orig_len = len(key)
+        key = digest_md5(key)[:min(orig_len, 16)]
+        return decrypt_aes(key=key, iv=data[:16], ciphertext=data[16:])
 
 
 class PDFStandardSecurityHandlerV5(PDFStandardSecurityHandlerV4):
@@ -490,24 +474,17 @@ class PDFStandardSecurityHandlerV5(PDFStandardSecurityHandlerV4):
 
     def authenticate(self, password):
         password = password.encode('utf-8')[:127]
-        hash = SHA256.new(password)
-        hash.update(self.o_validation_salt)
-        hash.update(self.u)
-        if hash.digest() == self.o_hash:
-            hash = SHA256.new(password)
-            hash.update(self.o_key_salt)
-            hash.update(self.u)
-            return AES.new(hash.digest(), mode=AES.MODE_CBC, IV=b'\x00' * 16).decrypt(self.oe)
-        hash = SHA256.new(password)
-        hash.update(self.u_validation_salt)
-        if hash.digest() == self.u_hash:
-            hash = SHA256.new(password)
-            hash.update(self.u_key_salt)
-            return AES.new(hash.digest(), mode=AES.MODE_CBC, IV=b'\x00' * 16).decrypt(self.ue)
+        if digest_sha256(password, self.o_validation_salt, self.u) == self.o_hash:
+            key = digest_sha256(password, self.o_key_salt, self.u)
+            return decrypt_aes(key=key, iv=b'\x00' * 16, ciphertext=self.oe)
+
+        if digest_sha256(password, self.u_validation_salt) == self.u_hash:
+            key = digest_sha256(password, self.u_key_salt)
+            return decrypt_aes(key=key, iv=b'\x00' * 16, ciphertext=self.ue)
         return None
 
     def decrypt_aes256(self, objid, genno, data):
-        return AES.new(self.key, mode=AES.MODE_CBC, IV=data[:16]).decrypt(data[16:])
+        return decrypt_aes(key=self.key, iv=data[:16], ciphertext=data[16:])
 
 
 ##  PDFDocument
@@ -529,11 +506,9 @@ class PDFDocument(object):
     security_handler_registry = {
         1: PDFStandardSecurityHandler,
         2: PDFStandardSecurityHandler,
+        4: PDFStandardSecurityHandlerV4,
+        5: PDFStandardSecurityHandlerV5,
     }
-    if AES is not None:
-        security_handler_registry[4] = PDFStandardSecurityHandlerV4
-        if SHA256 is not None:
-            security_handler_registry[5] = PDFStandardSecurityHandlerV5
 
     def __init__(self, parser, password='', caching=True, fallback=True):
         "Set the document to use a given PDFParser object."

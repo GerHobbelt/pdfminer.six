@@ -7,14 +7,10 @@ import nose
 
 #test of various compression/encoding modules (previously in doctests):
 from pdfminer3.ascii85 import *
-from pdfminer3.arcfour import *
+from pdfminer3.crypto import encrypt_arc4, decrypt_arc4
 from pdfminer3.lzw import *
 from pdfminer3.runlength import *
-from pdfminer3.rijndael import *
 
-import binascii
-def hex(b): return binascii.hexlify(b) #encode('hex')
-def dehex(b): return binascii.unhexlify(b) #decode('hex')
 
 class TestAscii85():
     def test_ascii85decode(self):
@@ -30,9 +26,9 @@ class TestAscii85():
 class TestArcfour():
     def test(self):
 
-        assert_equal(hex(Arcfour(b'Key').process(b'Plaintext')),b'bbf316e8d940af0ad3')
-        assert_equal(hex(Arcfour(b'Wiki').process(b'pedia')),b'1021bf0420')
-        assert_equal(hex(Arcfour(b'Secret').process(b'Attack at dawn')),b'45a01f645fc35b383552544b9bf5')
+        assert_equal(encrypt_arc4(b'Key', b'Plaintext').hex(), 'bbf316e8d940af0ad3')
+        assert_equal(encrypt_arc4(b'Wiki', b'pedia').hex(), '1021bf0420')
+        assert_equal(encrypt_arc4(b'Secret', b'Attack at dawn').hex(), '45a01f645fc35b383552544b9bf5')
 
 class TestLzw():
     def test_lzwdecode(self):
@@ -41,12 +37,6 @@ class TestLzw():
 class TestRunlength():
     def test_rldecode(self):
         assert_equal(rldecode(b'\x05123456\xfa7\x04abcde\x80junk'),b'1234567777777abcde')
-
-class TestRijndaelEncryptor():
-    def test_RijndaelEncryptor(self):
-        key = dehex(b'00010203050607080a0b0c0d0f101112')
-        plaintext = dehex(b'506812a45f08c889b97f5980038b8359')
-        assert_equal(hex(RijndaelEncryptor(key, 128).encrypt(plaintext)),b'd8f532538289ef7d06b506a4fd5be9c9')
 
 if __name__ == '__main__':
     nose.runmodule()

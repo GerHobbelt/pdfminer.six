@@ -5,8 +5,6 @@ python:
   - "3.5"
   - "3.6"
 install:
-  - pip install pycryptodome
-  - pip install chardet
-  - pip install sortedcontainers
+  - pip install -e .
 script:
   nosetests --nologcapture
