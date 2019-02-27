@@ -325,7 +325,7 @@ class CCITTG4Parser(BitParser):
         return
 
     def feedbytes(self, data):
-        for byte in get_bytes(data):
+        for byte in data:
             try:
                 for m in (128, 64, 32, 16, 8, 4, 2, 1):
                     self._parse_bit(byte & m)
