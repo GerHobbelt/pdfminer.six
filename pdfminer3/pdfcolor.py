@@ -9,7 +9,6 @@ LITERAL_DEVICE_CMYK = LIT('DeviceCMYK')
 
 
 class PDFColorSpace(object):
-
     def __init__(self, name, ncomponents):
         self.name = name
         self.ncomponents = ncomponents
@@ -32,4 +31,4 @@ for (name, n) in [
     ('Indexed', 1),
     ('Pattern', 1),
 ]:
-    PREDEFINED_COLORSPACE[name]=PDFColorSpace(name, n)
+    PREDEFINED_COLORSPACE[name] = PDFColorSpace(name, n)

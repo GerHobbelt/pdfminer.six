@@ -33,17 +33,22 @@ LITERALS_DCT_DECODE = (LIT('DCTDecode'), LIT('DCT'))
 class PDFObject(PSObject):
     pass
 
+
 class PDFException(PSException):
     pass
+
 
 class PDFTypeError(PDFException):
     pass
 
+
 class PDFValueError(PDFException):
     pass
 
+
 class PDFObjectNotFound(PDFException):
     pass
+
 
 class PDFNotImplementedError(PDFException):
     pass
@@ -52,14 +57,13 @@ class PDFNotImplementedError(PDFException):
 ##  PDFObjRef
 ##
 class PDFObjRef(PDFObject):
-
     def __init__(self, doc, objid, _):
         if objid == 0:
             if settings.STRICT:
                 raise PDFValueError('PDF object id cannot be 0.')
         self.doc = doc
         self.objid = objid
-        #self.genno = genno  # Never used.
+        # self.genno = genno  # Never used.
         return
 
     def __repr__(self):
@@ -200,11 +204,9 @@ def _safe_flate_decode(compressed):
     return out
 
 
-
 ##  PDFStream type
 ##
 class PDFStream(PDFObject):
-
     def __init__(self, attrs, rawdata, decipher=None):
         assert isinstance(attrs, dict), str(type(attrs))
         self.attrs = attrs
@@ -223,10 +225,18 @@ class PDFStream(PDFObject):
     def __repr__(self):
         if self.data is None:
             assert self.rawdata is not None
-            return '<PDFStream(%r): raw=%d, %r>' % (self.objid, len(self.rawdata), self.attrs)
+            return '<PDFStream(%r): raw=%d, %r>' % (
+                self.objid,
+                len(self.rawdata),
+                self.attrs,
+            )
         else:
             assert self.data is not None
-            return '<PDFStream(%r): len=%d, %r>' % (self.objid, len(self.data), self.attrs)
+            return '<PDFStream(%r): len=%d, %r>' % (
+                self.objid,
+                len(self.data),
+                self.attrs,
+            )
 
     def __contains__(self, name):
         return name in self.attrs
@@ -259,12 +269,13 @@ class PDFStream(PDFObject):
         # solves https://github.com/pdfminer/pdfminer.six/issues/15
         nparams = len(params)
         return [
-            (f, (params[idx] if idx < nparams else {}))
-            for idx, f in enumerate(filters)
+            (f, (params[idx] if idx < nparams else {})) for idx, f in enumerate(filters)
         ]
 
     def decode(self):
-        assert self.data is None and self.rawdata is not None, str((self.data, self.rawdata))
+        assert self.data is None and self.rawdata is not None, str(
+            (self.data, self.rawdata)
+        )
         data = self.rawdata
         if self.decipher:
             # Handle encryption
@@ -313,7 +324,9 @@ class PDFStream(PDFObject):
                     colors = int_value(params.get('Colors', 1))
                     columns = int_value(params.get('Columns', 1))
                     bitspercomponent = int_value(params.get('BitsPerComponent', 8))
-                    data = apply_png_predictor(pred, colors, columns, bitspercomponent, data)
+                    data = apply_png_predictor(
+                        pred, colors, columns, bitspercomponent, data
+                    )
                 else:
                     raise PDFNotImplementedError('Unsupported predictor: %r' % pred)
         self.data = data

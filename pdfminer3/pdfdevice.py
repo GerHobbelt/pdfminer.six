@@ -8,7 +8,6 @@ from . import utils
 ##  PDFDevice
 ##
 class PDFDevice(object):
-
     def __init__(self, rsrcmgr):
         self.rsrcmgr = rsrcmgr
         self.ctm = None
@@ -64,7 +63,6 @@ class PDFDevice(object):
 ##  PDFTextDevice
 ##
 class PDFTextDevice(PDFDevice):
-
     def render_string(self, textstate, seq, ncs, graphicstate):
         matrix = utils.mult_matrix(textstate.matrix, self.ctm)
         font = textstate.font
@@ -78,64 +76,125 @@ class PDFTextDevice(PDFDevice):
         dxscale = .001 * fontsize * scaling
         if font.is_vertical():
             textstate.linematrix = self.render_string_vertical(
-                seq, matrix, textstate.linematrix, font, fontsize,
-                scaling, charspace, wordspace, rise, dxscale, ncs, graphicstate)
+                seq,
+                matrix,
+                textstate.linematrix,
+                font,
+                fontsize,
+                scaling,
+                charspace,
+                wordspace,
+                rise,
+                dxscale,
+                ncs,
+                graphicstate,
+            )
         else:
             textstate.linematrix = self.render_string_horizontal(
-                seq, matrix, textstate.linematrix, font, fontsize,
-                scaling, charspace, wordspace, rise, dxscale, ncs, graphicstate)
+                seq,
+                matrix,
+                textstate.linematrix,
+                font,
+                fontsize,
+                scaling,
+                charspace,
+                wordspace,
+                rise,
+                dxscale,
+                ncs,
+                graphicstate,
+            )
         return
 
-    def render_string_horizontal(self, seq, matrix, pos,
-                                 font, fontsize, scaling, charspace, wordspace,
-                                 rise, dxscale, ncs, graphicstate):
+    def render_string_horizontal(
+        self,
+        seq,
+        matrix,
+        pos,
+        font,
+        fontsize,
+        scaling,
+        charspace,
+        wordspace,
+        rise,
+        dxscale,
+        ncs,
+        graphicstate,
+    ):
         (x, y) = pos
         needcharspace = False
         for obj in seq:
             if utils.isnumber(obj):
-                x -= obj*dxscale
+                x -= obj * dxscale
                 needcharspace = True
             else:
                 for cid in font.decode(obj):
                     if needcharspace:
                         x += charspace
-                    x += self.render_char(utils.translate_matrix(matrix, (x, y)),
-                                          font, fontsize, scaling, rise, cid,
-                                          ncs, graphicstate)
+                    x += self.render_char(
+                        utils.translate_matrix(matrix, (x, y)),
+                        font,
+                        fontsize,
+                        scaling,
+                        rise,
+                        cid,
+                        ncs,
+                        graphicstate,
+                    )
                     if cid == 32 and wordspace:
                         x += wordspace
                     needcharspace = True
         return (x, y)
 
-    def render_string_vertical(self, seq, matrix, pos,
-                               font, fontsize, scaling, charspace, wordspace,
-                               rise, dxscale, ncs, graphicstate):
+    def render_string_vertical(
+        self,
+        seq,
+        matrix,
+        pos,
+        font,
+        fontsize,
+        scaling,
+        charspace,
+        wordspace,
+        rise,
+        dxscale,
+        ncs,
+        graphicstate,
+    ):
         (x, y) = pos
         needcharspace = False
         for obj in seq:
             if utils.isnumber(obj):
-                y -= obj*dxscale
+                y -= obj * dxscale
                 needcharspace = True
             else:
                 for cid in font.decode(obj):
                     if needcharspace:
                         y += charspace
-                    y += self.render_char(utils.translate_matrix(matrix, (x, y)),
-                                          font, fontsize, scaling, rise, cid,
-                                          ncs, graphicstate)
+                    y += self.render_char(
+                        utils.translate_matrix(matrix, (x, y)),
+                        font,
+                        fontsize,
+                        scaling,
+                        rise,
+                        cid,
+                        ncs,
+                        graphicstate,
+                    )
                     if cid == 32 and wordspace:
                         y += wordspace
                     needcharspace = True
         return (x, y)
 
-    def render_char(self, matrix, font, fontsize, scaling, rise, cid, ncs, graphicstate):
+    def render_char(
+        self, matrix, font, fontsize, scaling, rise, cid, ncs, graphicstate
+    ):
         return 0
 
 
 ##  TagExtractor
 ##
 class TagExtractor(PDFDevice):
-
     def __init__(self, rsrcmgr, outfp, codec='utf-8'):
         PDFDevice.__init__(self, rsrcmgr)
         self.outfp = outfp
@@ -164,7 +223,11 @@ class TagExtractor(PDFDevice):
         return
 
     def begin_page(self, page, ctm):
-        output = '<page id="%s" bbox="%s" rotate="%d">' % (self.pageno, utils.bbox2str(page.mediabox), page.rotate)
+        output = '<page id="%s" bbox="%s" rotate="%d">' % (
+            self.pageno,
+            utils.bbox2str(page.mediabox),
+            page.rotate,
+        )
         self.outfp.write(utils.make_compat_bytes(output))
         return
 
@@ -176,8 +239,10 @@ class TagExtractor(PDFDevice):
     def begin_tag(self, tag, props=None):
         s = ''
         if isinstance(props, dict):
-            s = ''.join(' %s="%s"' % (utils.enc(k), utils.enc(str(v))) for (k, v)
-                        in sorted(props.items()))
+            s = ''.join(
+                ' %s="%s"' % (utils.enc(k), utils.enc(str(v)))
+                for (k, v) in sorted(props.items())
+            )
         out_s = '<%s%s>' % (utils.enc(tag.name), s)
         self.outfp.write(utils.make_compat_bytes(out_s))
         self._stack.append(tag)

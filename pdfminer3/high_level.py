@@ -16,12 +16,25 @@ from .cmapdb import CMapDB
 from .image import ImageWriter
 
 
-def extract_text_to_fp(inf, outfp,
-                    _py2_no_more_posargs=None,  # Bloody Python2 needs a shim
-                    output_type='text', codec='utf-8', laparams = None,
-                    maxpages=0, page_numbers=None, password="", scale=1.0, rotation=0,
-                    layoutmode='normal', output_dir=None, strip_control=False,
-                    debug=False, disable_caching=False, **other):
+def extract_text_to_fp(
+    inf,
+    outfp,
+    _py2_no_more_posargs=None,  # Bloody Python2 needs a shim
+    output_type='text',
+    codec='utf-8',
+    laparams=None,
+    maxpages=0,
+    page_numbers=None,
+    password="",
+    scale=1.0,
+    rotation=0,
+    layoutmode='normal',
+    output_dir=None,
+    strip_control=False,
+    debug=False,
+    disable_caching=False,
+    **other,
+):
     """
     Parses text from inf-file and writes to outfp file-like object.
     Takes loads of optional arguments but the defaults are somewhat sane.
@@ -51,30 +64,44 @@ def extract_text_to_fp(inf, outfp,
     rsrcmgr = PDFResourceManager(caching=not disable_caching)
 
     if output_type == 'text':
-        device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams,
-                               imagewriter=imagewriter)
+        device = TextConverter(
+            rsrcmgr, outfp, codec=codec, laparams=laparams, imagewriter=imagewriter
+        )
 
     if outfp == sys.stdout:
         outfp = sys.stdout.buffer
 
     if output_type == 'xml':
-        device = XMLConverter(rsrcmgr, outfp, codec=codec, laparams=laparams,
-                              imagewriter=imagewriter,
-                              stripcontrol=strip_control)
+        device = XMLConverter(
+            rsrcmgr,
+            outfp,
+            codec=codec,
+            laparams=laparams,
+            imagewriter=imagewriter,
+            stripcontrol=strip_control,
+        )
     elif output_type == 'html':
-        device = HTMLConverter(rsrcmgr, outfp, codec=codec, scale=scale,
-                               layoutmode=layoutmode, laparams=laparams,
-                               imagewriter=imagewriter)
+        device = HTMLConverter(
+            rsrcmgr,
+            outfp,
+            codec=codec,
+            scale=scale,
+            layoutmode=layoutmode,
+            laparams=laparams,
+            imagewriter=imagewriter,
+        )
     elif output_type == 'tag':
         device = TagExtractor(rsrcmgr, outfp, codec=codec)
 
     interpreter = PDFPageInterpreter(rsrcmgr, device)
-    for page in PDFPage.get_pages(inf,
-                                  page_numbers,
-                                  maxpages=maxpages,
-                                  password=password,
-                                  caching=not disable_caching,
-                                  check_extractable=True):
+    for page in PDFPage.get_pages(
+        inf,
+        page_numbers,
+        maxpages=maxpages,
+        password=password,
+        caching=not disable_caching,
+        check_extractable=True,
+    ):
         page.rotate = (page.rotate + rotation) % 360
         interpreter.process_page(page)
 

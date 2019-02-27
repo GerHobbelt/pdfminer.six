@@ -59,7 +59,7 @@ class PDFPage(object):
             self.cropbox = resolve1(self.attrs['CropBox'])
         else:
             self.cropbox = self.mediabox
-        self.rotate = (int_value(self.attrs.get('Rotate', 0))+360) % 360
+        self.rotate = (int_value(self.attrs.get('Rotate', 0)) + 360) % 360
         self.annots = self.attrs.get('Annots')
         self.beads = self.attrs.get('B')
         if 'Contents' in self.attrs:
@@ -101,6 +101,7 @@ class PDFPage(object):
             elif tree_type is LITERAL_PAGE:
                 log.info('Page: %r', tree)
                 yield (objid, tree)
+
         pages = False
         if 'Pages' in document.catalog:
             for (objid, tree) in search(document.catalog['Pages'], document.catalog):
@@ -119,9 +120,15 @@ class PDFPage(object):
         return
 
     @classmethod
-    def get_pages(klass, fp,
-                  pagenos=None, maxpages=0, password='',
-                  caching=True, check_extractable=True):
+    def get_pages(
+        klass,
+        fp,
+        pagenos=None,
+        maxpages=0,
+        password='',
+        caching=True,
+        check_extractable=True,
+    ):
         # Create a PDF parser object associated with the file object.
         parser = PDFParser(fp)
         # Create a PDF document object that stores the document structure.
@@ -134,6 +141,6 @@ class PDFPage(object):
             if pagenos and (pageno not in pagenos):
                 continue
             yield page
-            if maxpages and maxpages <= pageno+1:
+            if maxpages and maxpages <= pageno + 1:
                 break
         return

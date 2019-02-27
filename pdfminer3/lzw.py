@@ -4,6 +4,7 @@ from io import BytesIO
 
 import logging
 
+
 class CorruptDataError(Exception):
     pass
 
@@ -11,7 +12,6 @@ class CorruptDataError(Exception):
 ##  LZWDecoder
 ##
 class LZWDecoder(object):
-
     def __init__(self, fp):
         self.fp = fp
         self.buff = 0
@@ -25,19 +25,19 @@ class LZWDecoder(object):
         v = 0
         while True:
             # the number of remaining bits we can get from the current buffer.
-            r = 8-self.bpos
+            r = 8 - self.bpos
             if bits <= r:
                 # |-----8-bits-----|
                 # |-bpos-|-bits-|  |
                 # |      |----r----|
-                v = (v << bits) | ((self.buff >> (r-bits)) & ((1 << bits)-1))
+                v = (v << bits) | ((self.buff >> (r - bits)) & ((1 << bits) - 1))
                 self.bpos += bits
                 break
             else:
                 # |-----8-bits-----|
                 # |-bpos-|---bits----...
                 # |      |----r----|
-                v = (v << r) | (self.buff & ((1 << r)-1))
+                v = (v << r) | (self.buff & ((1 << r) - 1))
                 bits -= r
                 x = self.fp.read(1)
                 if not x:
@@ -61,9 +61,9 @@ class LZWDecoder(object):
         else:
             if code < len(self.table):
                 x = self.table[code]
-                self.table.append(self.prevbuf+x[:1])
+                self.table.append(self.prevbuf + x[:1])
             elif code == len(self.table):
-                self.table.append(self.prevbuf+self.prevbuf[:1])
+                self.table.append(self.prevbuf + self.prevbuf[:1])
                 x = self.table[code]
             else:
                 raise CorruptDataError
@@ -89,13 +89,15 @@ class LZWDecoder(object):
                 # just ignore corrupt data and stop yielding there
                 break
             yield x
-            logging.debug('nbits=%d, code=%d, output=%r, table=%r' %
-                          (self.nbits, code, x, self.table[258:]))
+            logging.debug(
+                'nbits=%d, code=%d, output=%r, table=%r'
+                % (self.nbits, code, x, self.table[258:])
+            )
         return
 
 
 # lzwdecode
 def lzwdecode(data):
     fp = BytesIO(data)
-    s=LZWDecoder(fp).run()
+    s = LZWDecoder(fp).run()
     return b''.join(s)

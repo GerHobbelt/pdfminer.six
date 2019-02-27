@@ -29,7 +29,7 @@ class WebAppHandler(SimpleHTTPRequestHandler):
         rest = self.path
         i = rest.rfind('?')
         if i >= 0:
-            rest, query = rest[:i], rest[i+1:]
+            rest, query = rest[:i], rest[i + 1 :]
         else:
             query = ''
         i = rest.find('/')
@@ -76,8 +76,13 @@ class WebAppHandler(SimpleHTTPRequestHandler):
         co = [_f for _f in self.headers.getheaders('cookie') if _f]
         if co:
             env['HTTP_COOKIE'] = ', '.join(co)
-        for k in ('QUERY_STRING', 'REMOTE_HOST', 'CONTENT_LENGTH',
-                  'HTTP_USER_AGENT', 'HTTP_COOKIE'):
+        for k in (
+            'QUERY_STRING',
+            'REMOTE_HOST',
+            'CONTENT_LENGTH',
+            'HTTP_USER_AGENT',
+            'HTTP_COOKIE',
+        ):
             env.setdefault(k, "")
         app = self.APP_CLASS(infp=self.rfile, outfp=self.wfile, environ=env)
         status = app.setup()
@@ -85,12 +90,15 @@ class WebAppHandler(SimpleHTTPRequestHandler):
         app.run()
         return
 
+
 # main
 def main(argv):
     import getopt, imp
+
     def usage():
         print(('usage: %s [-h host] [-p port] [-n name] module.class' % argv[0]))
         return 100
+
     try:
         (opts, args) = getopt.getopt(argv[1:], 'h:p:n:')
     except getopt.GetoptError:
@@ -99,10 +107,14 @@ def main(argv):
     port = 8080
     name = 'WebApp'
     for (k, v) in opts:
-        if k == '-h': host = v
-        elif k == '-p': port = int(v)
-        elif k == '-n': name = v
-    if not args: return usage()
+        if k == '-h':
+            host = v
+        elif k == '-p':
+            port = int(v)
+        elif k == '-n':
+            name = v
+    if not args:
+        return usage()
     path = args.pop(0)
     module = imp.load_source('app', path)
     WebAppHandler.APP_CLASS = getattr(module, name)
@@ -111,4 +123,6 @@ def main(argv):
     httpd.serve_forever()
     return
 
-if __name__ == '__main__': sys.exit(main(sys.argv))
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

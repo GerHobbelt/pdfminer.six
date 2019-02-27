@@ -17,14 +17,17 @@ from pdfminer3.layout import LAParams, LTContainer
 
 _, SCRIPT = os.path.split(__file__)
 
+
 def msg(*args, **kwargs):
     print(' '.join(map(str, args)), file=sys.stdout, **kwargs)
+
 
 def flat_iter(obj):
     yield obj
     if isinstance(obj, LTContainer):
         for ob in obj:
             yield from flat_iter(ob)
+
 
 def main(args):
     msg(SCRIPT, args)
@@ -54,14 +57,10 @@ def main(args):
         # Make a page iterator
         pages = PDFPage.create_pages(document)
 
-
         # Set up for some analysis
         rsrcmgr = PDFResourceManager()
-        laparams = LAParams(
-            detect_vertical=True,
-            all_texts=True,
-            )
-        #device = PDFDevice(rsrcmgr)
+        laparams = LAParams(detect_vertical=True, all_texts=True)
+        # device = PDFDevice(rsrcmgr)
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
         interpreter = PDFPageInterpreter(rsrcmgr, device)
 
@@ -75,6 +74,7 @@ def main(args):
 
     msg('page_count', page_count)
     msg('lt_types:', ' '.join('{}:{}'.format(*tc) for tc in lt_types.items()))
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

@@ -103,7 +103,7 @@ class PDFParser(PSStackParser):
             pos += len(line)
             self.fp.seek(pos)
             data = bytearray(self.fp.read(objlen))
-            self.seek(pos+objlen)
+            self.seek(pos + objlen)
             while True:
                 try:
                     (linepos, line) = self.nextline()
@@ -121,9 +121,15 @@ class PDFParser(PSStackParser):
                 if self.fallback:
                     data += line
             data = bytes(data)
-            self.seek(pos+objlen)
+            self.seek(pos + objlen)
             # XXX limit objlen not to exceed object boundary
-            log.debug('Stream: pos=%d, objlen=%d, dic=%r, data=%r...', pos, objlen, dic, data[:10])
+            log.debug(
+                'Stream: pos=%d, objlen=%d, dic=%r, data=%r...',
+                pos,
+                objlen,
+                dic,
+                data[:10],
+            )
             obj = PDFStream(dic, data, self.doc.decipher)
             self.push((pos, obj))
 
@@ -155,6 +161,7 @@ class PDFStreamParser(PDFParser):
         return
 
     KEYWORD_OBJ = KWD(b'obj')
+
     def do_keyword(self, pos, token):
         if token is self.KEYWORD_R:
             # reference to indirect object

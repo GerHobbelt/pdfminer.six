@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+
 try:
     import pickle as pickle
 except ImportError:
@@ -9,13 +10,12 @@ import codecs
 
 
 class CMapConverter(object):
-
     def __init__(self, enc2codec={}):
         self.enc2codec = enc2codec
-        self.code2cid = {} # {'cmapname': ...}
+        self.code2cid = {}  # {'cmapname': ...}
         self.is_vertical = {}
-        self.cid2unichr_h = {} # {cid: unichr}
-        self.cid2unichr_v = {} # {cid: unichr}
+        self.cid2unichr_h = {}  # {cid: unichr}
+        self.cid2unichr_v = {}  # {cid: unichr}
         return
 
     def get_encs(self):
@@ -27,7 +27,7 @@ class CMapConverter(object):
         elif enc == 'H':
             (hmapenc, vmapenc) = ('H', 'V')
         else:
-            (hmapenc, vmapenc) = (enc+'-H', enc+'-V')
+            (hmapenc, vmapenc) = (enc + '-H', enc + '-V')
         if hmapenc in self.code2cid:
             hmap = self.code2cid[hmapenc]
         else:
@@ -47,7 +47,8 @@ class CMapConverter(object):
         encs = None
         for line in fp:
             (line, _, _) = line.strip().partition('#')
-            if not line: continue
+            if not line:
+                continue
             values = line.split('\t')
             if encs is None:
                 assert values[0] == 'CID', str(values)
@@ -83,7 +84,7 @@ class CMapConverter(object):
 
             def pick(unimap):
                 chars = list(unimap.items())
-                chars.sort(key=(lambda x:(x[1], -ord(x[0]))), reverse=True)
+                chars.sort(key=(lambda x: (x[1], -ord(x[0]))), reverse=True)
                 (c, _) = chars[0]
                 return c
 
@@ -91,8 +92,10 @@ class CMapConverter(object):
             unimap_h = {}
             unimap_v = {}
             for (enc, value) in zip(encs, values):
-                if enc == 'CID': continue
-                if value == '*': continue
+                if enc == 'CID':
+                    continue
+                if value == '*':
+                    continue
 
                 # hcodes, vcodes: encoded bytes for each writing mode.
                 hcodes = []
@@ -141,12 +144,10 @@ class CMapConverter(object):
         return
 
     def dump_unicodemap(self, fp):
-        data = dict(
-            CID2UNICHR_H=self.cid2unichr_h,
-            CID2UNICHR_V=self.cid2unichr_v,
-        )
+        data = dict(CID2UNICHR_H=self.cid2unichr_h, CID2UNICHR_V=self.cid2unichr_v)
         fp.write(pickle.dumps(data, 2))
         return
+
 
 # main
 def main(argv):
@@ -155,8 +156,11 @@ def main(argv):
     import os.path
 
     def usage():
-        print(('usage: %s [-c enc=codec] output_dir regname [cid2code.txt ...]' % argv[0]))
+        print(
+            ('usage: %s [-c enc=codec] output_dir regname [cid2code.txt ...]' % argv[0])
+        )
         return 100
+
     try:
         (opts, args) = getopt.getopt(argv[1:], 'c:')
     except getopt.GetoptError:
@@ -166,9 +170,11 @@ def main(argv):
         if k == '-c':
             (enc, _, codec) = v.partition('=')
             enc2codec[enc] = codec
-    if not args: return usage()
+    if not args:
+        return usage()
     outdir = args.pop(0)
-    if not args: return usage()
+    if not args:
+        return usage()
     regname = args.pop(0)
 
     converter = CMapConverter(enc2codec)
@@ -194,4 +200,6 @@ def main(argv):
     fp.close()
     return
 
-if __name__ == '__main__': sys.exit(main(sys.argv))
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
