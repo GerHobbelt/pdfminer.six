@@ -1,45 +1,32 @@
-#!/usr/bin/env python3
 
-import nose, logging, os
+import os
+
+import pytest
+
 from tools import dumppdf
 
+path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
-path=os.path.dirname(os.path.abspath(__file__))+'/'
 
-def run(datapath,filename,options=None):
-    i=path+datapath+filename+'.pdf'
-    o=path+filename+'.xml'
+@pytest.mark.parametrize(
+    'datapath,filename,options',
+    [
+        ('../samples/', 'jo', '-t -a'),
+        ('../samples/', 'simple1', '-t -a'),
+        ('../samples/', 'simple2', '-t -a'),
+        ('../samples/', 'simple3', '-t -a'),
+        ('../samples/nonfree/', 'dmca', '-t -a'),
+        ('../samples/nonfree/', 'f1040nr', None),
+        ('../samples/nonfree/', 'i1040nr', None),
+        ('../samples/nonfree/', 'kampo', '-t -a'),
+        ('../samples/nonfree/', 'naacl06-shinyama', '-t -a'),
+    ],
+)
+def test_dumppdf(datapath, filename, options):
+    i = path + datapath + filename + '.pdf'
+    o = path + filename + '.xml'
     if options:
-        s='dumppdf -o%s %s %s'%(o,options,i)
+        s = 'dumppdf -o%s %s %s' % (o, options, i)
     else:
-         s='dumppdf -o%s %s'%(o,i)
+        s = 'dumppdf -o%s %s' % (o, i)
     dumppdf.main(s.split(' '))
-
-class TestDumpPDF():
-
-
-    def test_1(self):
-        run('../samples/','jo','-t -a')
-        run('../samples/','simple1','-t -a')
-        run('../samples/','simple2','-t -a')
-        run('../samples/','simple3','-t -a')
-
-    def test_2(self):
-        run('../samples/nonfree/','dmca','-t -a')
-
-    def test_3(self):
-        run('../samples/nonfree/','f1040nr')
-
-    def test_4(self):
-        run('../samples/nonfree/','i1040nr')
-
-    def test_5(self):
-        run('../samples/nonfree/','kampo','-t -a')
-
-    def test_6(self):
-        run('../samples/nonfree/','naacl06-shinyama','-t -a')
-
-if __name__ == '__main__':
-    #import logging,sys,os
-    #logging.basicConfig(level=logging.DEBUG, filename='%s_%d.%d.log'%(os.path.basename(__file__),sys.version_info[0],sys.version_info[1]))
-    nose.runmodule()
