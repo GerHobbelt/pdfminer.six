@@ -99,7 +99,7 @@ def resolve_all(x, default=None):
     if isinstance(x, list):
         x = [resolve_all(v, default=default) for v in x]
     elif isinstance(x, dict):
-        for (k, v) in list(x.items()):
+        for (k, v) in x.items():
             x[k] = resolve_all(v, default=default)
     return x
 
@@ -149,7 +149,7 @@ def str_value(x):
     x = resolve1(x)
     if not isinstance(x, bytes):
         if settings.STRICT:
-            raise PDFTypeError('String required: %r' % x)
+            raise PDFTypeError('Bytes required: %r' % x)
         return ''
     return x
 

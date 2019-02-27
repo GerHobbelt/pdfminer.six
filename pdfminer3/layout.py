@@ -770,7 +770,7 @@ class LTLayoutContainer(LTContainer):
         for obj in empties:
             obj.analyze(laparams)
         textboxes = list(self.group_textlines(laparams, textlines))
-        if -1 <= laparams.boxes_flow and laparams.boxes_flow <= +1 and textboxes:
+        if -1 <=laparams.boxes_flow <= 1 and textboxes:
             self.groups = self.group_textboxes(laparams, textboxes)
             assigner = IndexAssigner()
             for group in self.groups:

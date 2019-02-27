@@ -775,7 +775,7 @@ class TrueTypeFont(object):
                 assert False, str(('Unhandled', fmttype))
         # create unicode map
         unicode_map = FileUnicodeMap()
-        for (char, gid) in list(char2gid.items()):
+        for (char, gid) in char2gid.items():
             unicode_map.add_cid2unichr(gid, char)
         return unicode_map
 

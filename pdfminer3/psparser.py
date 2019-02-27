@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-
-# -*- coding: utf-8 -*-
-
 import re
 import logging
 
@@ -636,7 +632,6 @@ class PSStackParser(PSBaseParser):
                     self.curstack,
                 )
                 self.do_keyword(pos, token)
-                raise
             if self.context:
                 continue
             else:

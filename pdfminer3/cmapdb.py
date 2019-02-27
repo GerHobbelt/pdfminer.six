@@ -15,11 +15,7 @@ import sys
 import os
 import os.path
 import gzip
-
-try:
-    import pickle as pickle
-except ImportError:
-    import pickle as pickle
+import pickle
 import struct
 import logging
 from .psparser import PSStackParser
@@ -81,7 +77,7 @@ class CMap(CMapBase):
         assert isinstance(cmap, CMap), str(type(cmap))
 
         def copy(dst, src):
-            for (k, v) in list(src.items()):
+            for k, v in src.items():
                 if isinstance(v, dict):
                     d = {}
                     dst[k] = d
