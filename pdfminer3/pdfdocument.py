@@ -120,7 +120,7 @@ class PDFXRef(PDFBaseXRef):
                 if use != b'n':
                     continue
                 self.offsets[objid] = (None, int(pos), int(genno))
-        log.info('xref objects: %r', self.offsets)
+        log.debug('xref objects: %r', self.offsets)
         self.load_trailer(parser)
         return
 
@@ -169,7 +169,7 @@ class PDFXRefFallback(PDFXRef):
             if line.startswith(b'trailer'):
                 parser.seek(pos)
                 self.load_trailer(parser)
-                log.info('trailer: %r', self.trailer)
+                log.debug('trailer: %r', self.trailer)
                 break
             line = line.decode('latin-1')  # default pdf encoding
             m = self.PDFOBJ_CUE.match(line)
@@ -234,7 +234,7 @@ class PDFXRefStream(PDFBaseXRef):
         self.data = stream.get_data()
         self.entlen = self.fl1 + self.fl2 + self.fl3
         self.trailer = stream.attrs
-        log.info(
+        log.debug(
             'xref stream: objid=%s, fields=%d,%d,%d',
             ', '.join(map(repr, self.ranges)),
             self.fl1,
@@ -773,7 +773,7 @@ class PDFDocument(object):
                 prev = line
         else:
             raise PDFNoValidXRef('Unexpected EOF')
-        log.info('xref found: pos=%r', prev)
+        log.debug('xref found: pos=%r', prev)
         return int(prev)
 
     # read xref table
@@ -785,7 +785,7 @@ class PDFDocument(object):
             (pos, token) = parser.nexttoken()
         except PSEOF:
             raise PDFNoValidXRef('Unexpected EOF')
-        log.info('read_xref_from: start=%d, token=%r', start, token)
+        log.debug('read_xref_from: start=%d, token=%r', start, token)
         if isinstance(token, int):
             # XRefStream: PDF-1.5
             parser.seek(pos)
@@ -799,7 +799,7 @@ class PDFDocument(object):
             xref.load(parser)
         xrefs.append(xref)
         trailer = xref.get_trailer()
-        log.info('trailer: %r', trailer)
+        log.debug('trailer: %r', trailer)
         if 'XRefStm' in trailer:
             pos = int_value(trailer['XRefStm'])
             self.read_xref_from(parser, pos, xrefs)

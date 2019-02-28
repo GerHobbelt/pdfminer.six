@@ -203,7 +203,7 @@ class PSBaseParser(object):
         if not pos:
             pos = self.bufpos + self.charpos
         self.fp.seek(pos)
-        log.info('poll(%d): %r', pos, self.fp.read(n))
+        log.debug('poll(%d): %r', pos, self.fp.read(n))
         self.fp.seek(pos0)
         return
 
@@ -625,7 +625,7 @@ class PSStackParser(PSBaseParser):
                 )
                 self.do_keyword(pos, token)
             else:
-                log.error(
+                log.debug(
                     'unknown token: pos=%r, token=%r, stack=%r',
                     pos,
                     token,
