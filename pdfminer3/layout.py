@@ -796,10 +796,10 @@ class LTFigure(LTLayoutContainer):
     def __init__(self, name, bbox, matrix):
         self.name = name
         self.matrix = matrix
-        (x, y, w, h) = bbox
+        (x0, y0, x1, y1) = bbox
         bbox = get_bound(
             apply_matrix_pt(matrix, (p, q))
-            for (p, q) in ((x, y), (x + w, y), (x, y + h), (x + w, y + h))
+            for (p, q) in ((x0, y0), (x0, y1), (x1, y0), (x1, y1))
         )
         LTLayoutContainer.__init__(self, bbox)
         return
