@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import logging
+from logging import getLogger
 from io import BytesIO
 from .psparser import PSStackParser
 from .psparser import PSSyntaxError
@@ -13,6 +13,7 @@ from .pdftypes import int_value
 from .pdftypes import dict_value
 
 
+logger = getLogger(__name__)
 ##  Exceptions
 ##
 class PDFSyntaxError(PDFException):
@@ -121,7 +122,7 @@ class PDFParser(PSStackParser):
             self.seek(pos+objlen)
             # XXX limit objlen not to exceed object boundary
             if self.debug:
-                logging.debug('Stream: pos=%d, objlen=%d, dic=%r, data=%r...' % \
+                logger.debug('Stream: pos=%d, objlen=%d, dic=%r, data=%r...' % \
                               (pos, objlen, dic, data[:10]))
             obj = PDFStream(dic, data, self.doc.decipher)
             self.push((pos, obj))

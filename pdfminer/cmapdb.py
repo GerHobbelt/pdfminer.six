@@ -18,7 +18,7 @@ import gzip
 import codecs
 import marshal
 import struct
-import logging
+from logging import getLogger
 from .psparser import PSStackParser
 from .psparser import PSSyntaxError
 from .psparser import PSEOF
@@ -29,6 +29,7 @@ from .encodingdb import name2unicode
 from .utils import choplist
 from .utils import nunpack
 
+logger = getLogger(__name__)
 
 class CMapError(Exception):
     pass
@@ -89,7 +90,7 @@ class CMap(CMapBase):
 
     def decode(self, code):
         if self.debug:
-            logging.debug('decode: %r, %r' % (self, code))
+            logger.debug('decode: %r, %r' % (self, code))
         d = self.code2cid
         for c in code:
             if c in d:
@@ -140,7 +141,7 @@ class UnicodeMap(CMapBase):
 
     def get_unichr(self, cid):
         if self.debug:
-            logging.debug('get_unichr: %r, %r' % (self, cid))
+            logger.debug('get_unichr: %r, %r' % (self, cid))
         return self.cid2unichr[cid]
 
     def dump(self, out=sys.stdout):
@@ -227,7 +228,7 @@ class CMapDB:
     @classmethod
     def _load_data(klass, name):
         filename = '%s.marshal.gz' % name
-        logging.info('loading: %r' % name)
+        logger.info('loading: %r' % name)
         cmap_paths = (os.environ.get('CMAP_PATH', '/usr/share/pdfminer/'),
                       os.path.join(os.path.dirname(__file__), 'cmap'),)
         for directory in cmap_paths:
