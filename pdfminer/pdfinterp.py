@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import re
-import logging
+from logging import getLogger
 from io import BytesIO
 from .cmapdb import CMapDB
 from .cmapdb import CMap
@@ -31,7 +31,7 @@ from .utils import choplist
 from .utils import mult_matrix
 from .utils import MATRIX_IDENTITY
 
-
+logger = getLogger(__name__)
 ##  Exceptions
 ##
 class PDFResourceError(PDFException):
@@ -170,7 +170,7 @@ class PDFResourceManager:
             font = self._cached_fonts[objid]
         else:
             if self.debug:
-                logging.info('get_font: create: objid=%r, spec=%r' % (objid, spec))
+                logger.info('get_font: create: objid=%r, spec=%r' % (objid, spec))
             if STRICT:
                 if spec['Type'] is not LITERAL_FONT:
                     raise PDFFontError('Type is not /Font')
@@ -346,7 +346,7 @@ class PDFPageInterpreter:
                 return PREDEFINED_COLORSPACE.get(name)
         for (k, v) in dict_value(resources).items():
             if self.debug:
-                logging.debug('Resource: %r: %r' % (k, v))
+                logger.debug('Resource: %r: %r' % (k, v))
             if k == 'Font':
                 for (fontid, spec) in dict_value(v).items():
                     objid = None
@@ -804,7 +804,7 @@ class PDFPageInterpreter:
             if STRICT:
                 raise PDFInterpreterError('Undefined xobject id: %r' % xobjid)
             return
-        if self.debug: logging.info('Processing xobj: %r' % xobj)
+        if self.debug: logger.info('Processing xobj: %r' % xobj)
         subtype = xobj.get('Subtype')
         if subtype is LITERAL_FORM and 'BBox' in xobj:
             interpreter = self.dup()
@@ -827,7 +827,7 @@ class PDFPageInterpreter:
         return
 
     def process_page(self, page):
-        if self.debug: logging.info('Processing page: %r' % page)
+        if self.debug: logger.info('Processing page: %r' % page)
         (x0, y0, x1, y1) = page.mediabox
         if page.rotate == 90:
             ctm = (0, -1, 1, 0, -y0, x1)
@@ -847,7 +847,7 @@ class PDFPageInterpreter:
     #   This method may be called recursively.
     def render_contents(self, resources, streams, ctm=MATRIX_IDENTITY):
         if self.debug:
-            logging.info('render_contents: resources=%r, streams=%r, ctm=%r' %
+            logger.info('render_contents: resources=%r, streams=%r, ctm=%r' %
                      (resources, streams, ctm))
         self.init_resources(resources)
         self.init_state(ctm)
@@ -874,12 +874,12 @@ class PDFPageInterpreter:
                     if nargs:
                         args = self.pop(nargs)
                         if self.debug:
-                            logging.debug('exec: %s %r' % (name, args))
+                            logger.debug('exec: %s %r' % (name, args))
                         if len(args) == nargs:
                             func(*args)
                     else:
                         if self.debug:
-                            logging.debug('exec: %s' % name)
+                            logger.debug('exec: %s' % name)
                         func()
                 else:
                     if STRICT:
