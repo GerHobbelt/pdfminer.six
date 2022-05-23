@@ -18,6 +18,7 @@ tests/*.txt
 .idea/
 .tox/
 .nox/
+.DS_Store
 
 # python venv management tools
 Pipfile
