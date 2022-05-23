@@ -680,7 +680,8 @@ def vecBetweenBoxes(obj1: "LTComponent", obj2: "LTComponent") -> Point:
 LTComponentT = TypeVar("LTComponentT", bound="LTComponent")
 
 
-class Plane(Generic[LTComponentT]):
+GenericTemplateForPlane = Generic[LTComponentT]
+class Plane(GenericTemplateForPlane):
     """A set-like data structure for objects placed on a plane.
 
     Can efficiently find objects in a certain rectangular area.

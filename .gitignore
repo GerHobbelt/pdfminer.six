@@ -27,3 +27,7 @@ Pipfile.lock
 .vscode/
 pyproject.toml
 poetry.lock
+
+# Cython files
+pdfminer/*.c
+

@@ -104,7 +104,8 @@ class FontMetricsDB:
 
 
 # int here means that we're not extending PSStackParser with additional types.
-class Type1FontHeaderParser(PSStackParser[int]):
+Type1FontHeaderParserTemplateForPSStackParser=PSStackParser[int]
+class Type1FontHeaderParser(Type1FontHeaderParserTemplateForPSStackParser):
 
     KEYWORD_BEGIN = KWD(b"begin")
     KEYWORD_END = KWD(b"end")

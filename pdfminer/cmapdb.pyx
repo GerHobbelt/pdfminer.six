@@ -279,8 +279,8 @@ class CMapDB:
         cls._umap_cache[name] = [PyUnicodeMap(name, data, v) for v in (False, True)]
         return cls._umap_cache[name][vertical]
 
-
-class CMapParser(PSStackParser[PSKeyword]):
+PSStackParserTemplateForCMapParser = PSStackParser[PSKeyword]
+class CMapParser(PSStackParserTemplateForCMapParser):
     def __init__(self, cmap: CMapBase, fp: BinaryIO) -> None:
         PSStackParser.__init__(self, fp)
         self.cmap = cmap

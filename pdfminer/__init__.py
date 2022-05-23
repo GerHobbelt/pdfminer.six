@@ -1,4 +1,4 @@
-__version__ = "20220506"  # auto replaced with tag in github actions
+__version__ = "20200517"
 
 if __name__ == "__main__":
     print(__version__)

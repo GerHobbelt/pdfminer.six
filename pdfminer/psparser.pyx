@@ -96,7 +96,8 @@ class PSKeyword(PSObject):
 _SymbolT = TypeVar("_SymbolT", PSLiteral, PSKeyword)
 
 
-class PSSymbolTable(Generic[_SymbolT]):
+GenericTemplateForGeneric=Generic[_SymbolT]
+class PSSymbolTable(GenericTemplateForGeneric):
     """A utility class for storing PSLiteral/PSKeyword objects.
 
     Interned objects can be checked its identity with "is" operator.

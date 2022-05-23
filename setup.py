@@ -4,12 +4,10 @@ from pathlib import Path
 from setuptools import setup
 from os import path
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    import pip
-    pip.main(['install', 'cython==3.0.0a10'])
-    from Cython.Build import cythonize
+
+import pip
+pip.main(['install', 'cython==3.0.0a10'])
+from Cython.Build import cythonize
 
 sys.path.append(str(Path(__file__).parent))
 import pdfminer as package

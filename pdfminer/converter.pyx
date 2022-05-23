@@ -291,7 +291,8 @@ class PDFConverter(PDFLayoutAnalyzer, Generic[IOType]):
         return True
 
 
-class TextConverter(PDFConverter[AnyIO]):
+PDFConverterTemplateForTextConverter=PDFConverter[AnyIO]
+class TextConverter(PDFConverterTemplateForTextConverter):
     def __init__(
         self,
         rsrcmgr: PDFResourceManager,
@@ -351,7 +352,8 @@ class TextConverter(PDFConverter[AnyIO]):
         return
 
 
-class HTMLConverter(PDFConverter[AnyIO]):
+PDFConverterTemplateForHTMLConverter=PDFConverter[AnyIO]
+class HTMLConverter(PDFConverterTemplateForHTMLConverter):
     RECT_COLORS = {
         "figure": "yellow",
         "textline": "magenta",
@@ -657,7 +659,8 @@ class HTMLConverter(PDFConverter[AnyIO]):
         return
 
 
-class XMLConverter(PDFConverter[AnyIO]):
+PDFConverterTemplateForXMLConverter=PDFConverter[AnyIO]
+class XMLConverter(PDFConverterTemplateForXMLConverter):
 
     CONTROL = re.compile("[\x00-\x08\x0b-\x0c\x0e-\x1f]")
 

@@ -440,7 +440,8 @@ class LTContainer(LTComponent, Generic[LTItemT]):
         return
 
 
-class LTExpandableContainer(LTContainer[LTItemT]):
+LTContainerTemplateForLTExpandableContainer=LTContainer[LTItemT]
+class LTExpandableContainer(LTContainerTemplateForLTExpandableContainer):
     def __init__(self) -> None:
         LTContainer.__init__(self, (+INF, +INF, -INF, -INF))
         return
@@ -475,7 +476,8 @@ class LTTextContainer(LTExpandableContainer[LTItemT], LTText):
 TextLineElement = Union[LTChar, LTAnno]
 
 
-class LTTextLine(LTTextContainer[TextLineElement]):
+LTTextContainerTemplateForLTTextLine=LTTextContainer[TextLineElement]
+class LTTextLine(LTTextContainerTemplateForLTTextLine):
     """Contains a list of LTChar objects that represent a single text line.
 
     The characters are aligned either horizontally or vertically, depending on
@@ -645,7 +647,8 @@ class LTTextLineVertical(LTTextLine):
         return abs(other.width - self.width) <= tolerance
 
 
-class LTTextBox(LTTextContainer[LTTextLine]):
+LTTextContainerTemplateForLTTextBox=LTTextContainer[LTTextLine]
+class LTTextBox(LTTextContainerTemplateForLTTextBox):
     """Represents a group of text chunks in a rectangular area.
 
     Note that this box is created by geometric analysis and does not
@@ -693,7 +696,8 @@ class LTTextBoxVertical(LTTextBox):
 TextGroupElement = Union[LTTextBox, "LTTextGroup"]
 
 
-class LTTextGroup(LTTextContainer[TextGroupElement]):
+LTTextContainerTemplateForLTTextGroup=LTTextContainer[TextGroupElement]
+class LTTextGroup(LTTextContainerTemplateForLTTextGroup):
     def __init__(self, objs: Iterable[TextGroupElement]) -> None:
         super().__init__()
         self.extend(objs)
@@ -726,7 +730,8 @@ class LTTextGroupTBRL(LTTextGroup):
         return
 
 
-class LTLayoutContainer(LTContainer[LTComponent]):
+LTContainerTemplateForLTLayoutContainer=LTContainer[LTComponent]
+class LTLayoutContainer(LTContainerTemplateForLTLayoutContainer):
     def __init__(self, bbox: Rect) -> None:
         LTContainer.__init__(self, bbox)
         self.groups: Optional[List[LTTextGroup]] = None
