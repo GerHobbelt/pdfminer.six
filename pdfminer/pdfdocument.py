@@ -278,6 +278,12 @@ class PDFXRefStream(PDFBaseXRef):
         return
 
     def get_pos(self, objid):
+        if isinstance(objid, six.string_types):
+            try:
+                objid = int(objid.split("_")[0])
+            except Exception as e:
+                log.info(e)
+                pass
         index = 0
         for (start, nobjs) in self.ranges:
             if start <= objid and objid < start+nobjs:
